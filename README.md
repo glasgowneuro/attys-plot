@@ -4,7 +4,7 @@ Python script which filters and plots the tsv files recorded by
 attys-scope (Desktop) or AttysScope (Android) and the
 [Attys](http://www.attys.tech).
 
-`attys-plot.py` first loads the raw unfiltered data. Then
+First load the raw unfiltered data. Then
 select the filter functions such as low, high or bandstop
 filters and plot the results.
 
