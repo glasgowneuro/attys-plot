@@ -13,8 +13,10 @@ filters and plot the results.
 
 ## Python requirements
 
+```
 pip install PyQtChart
 pip install plotly
+```
 
 ## How to run
 
