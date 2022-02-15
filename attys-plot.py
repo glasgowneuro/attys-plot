@@ -1,6 +1,6 @@
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout
-from PyQt5.QtWidgets import QPushButton, QCheckBox, QFileDialog, QComboBox
+from PyQt5.QtWidgets import QPushButton, QCheckBox, QFileDialog, QComboBox, QLabel
 from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis
 import sys
 from plotly.subplots import make_subplots
@@ -131,27 +131,38 @@ class Window(QMainWindow):
         self.lowpassBoxes = []
 
         for channel in self.attysData.channels:
+            
+            layh = QHBoxLayout()
+            name = QLabel(channel['name'])
+            name.setStyleSheet("padding-left: 1em; min-width: 4em; max-width: 4em")
+            layh.addWidget(name)
+
             ch = self.attysData.data[:,channel['idx']]
             view = self.createGraph(self.attysData.t,ch,channel)
-            layh = QHBoxLayout()
             layh.addWidget(view, stretch=1)
-            
+
+            arrow = '\u2794'
             cb = QCheckBox("Use")
             cb.setChecked(True)
+            cb.setStyleSheet("padding-left: 1em;")
             self.doUseCheckboxes.append(cb)
             layh.addWidget(cb)
+            layh.addWidget(QLabel(arrow))
 
             bs = BandstopBox()
             self.bandStopBoxes.append(bs)
             layh.addWidget(bs)
+            layh.addWidget(QLabel(arrow))
             
             hp = HighpassBox()
             self.highpassBoxes.append(hp)
             layh.addWidget(hp)
+            layh.addWidget(QLabel(arrow))
             
             lp = LowpassBox()
             self.lowpassBoxes.append(lp)
             layh.addWidget(lp)
+            layh.addWidget(QLabel(arrow))
 
             channelsLayout.addLayout(layh)
 
@@ -169,14 +180,6 @@ class Window(QMainWindow):
         chart.layout().setContentsMargins(1, 1, 1, 1);
         chart.legend().hide()
         chart.addSeries(series)
-        axisY = QValueAxis();
-        axisY.setTitleText(channel['name'])
-        axisY.setRange(min(data),max(data))
-        chart.setAxisY(axisY)
-        axisX = QValueAxis();
-        axisX.setTitleText('t/sec')
-        axisX.setRange(t[0],t[-1])
-        chart.setAxisX(axisX)
         chartview = QChartView(chart)
         return chartview
 
