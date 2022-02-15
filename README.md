@@ -1,7 +1,7 @@
 # attys-plot
 
-Python script which
-filters and plots the tsv files recorded by attys-scope and the 
+Python script which filters and plots the tsv files recorded by
+attys-scope (Desktop) or AttysScope (Android) and the
 [Attys](http://www.attys.tech).
 
 `attys-plot.py` first loads the raw unfiltered data. Then
@@ -25,3 +25,5 @@ Just run `attys-plot.py` with:
 ```
 python attys-plot.py
 ```
+
+or from your favourite IDE.

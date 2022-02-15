@@ -1,6 +1,7 @@
 import numpy as np
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout
-from PyQt5.QtWidgets import QPushButton, QCheckBox, QFileDialog, QComboBox, QLabel
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis
 import sys
 from plotly.subplots import make_subplots
@@ -166,9 +167,20 @@ class Window(QMainWindow):
 
             channelsLayout.addLayout(layh)
 
-        createPlot = QPushButton("Create plot page")
+        actionsLayout = QVBoxLayout()
+#        actionsLayout.setAlignment(Qt.AlignTop)
+        logoLabel = QLabel()
+        logoLabel.setAlignment(Qt.AlignRight | Qt.AlignTop);
+        logoLabel.setPixmap(QPixmap('attyslogo.png'))
+        actionsLayout.addWidget(logoLabel)
+        
+        createPlot = QPushButton("Create plot")
+        createPlot.setStyleSheet("padding: 2em;")
         createPlot.clicked.connect(self.doPlot)
-        flowLayout.addWidget(createPlot)
+        actionsLayout.addStretch()
+        actionsLayout.addWidget(createPlot)
+        actionsLayout.addStretch()
+        flowLayout.addLayout(actionsLayout)
         
 
     def createGraph(self,t,data,channel):
