@@ -102,7 +102,34 @@ class LowpassBox(QComboBox):
         b,a = signal.butter(4, f/fs*2, 'low')
         return signal.lfilter(b,a,data)
 
+class QChannelCheckBox(QCheckBox):
+    
+    def __init__(self):
+        super().__init__()
+        self.stateChanged.connect(self.changed)
+        self.widgetlist = []
+
+    def addWidget(self,w):
+        self.widgetlist.append(w)
+
+    def changed(self,s):
+        for w in self.widgetlist:
+            w.setEnabled(self.isChecked())
+
+
 class Window(QMainWindow):
+
+    def createGraph(self,t,data,channel):
+        series = QLineSeries()
+        for i,j in zip(t,data):
+            series.append(i,j)
+
+        chart = QChart()
+        chart.layout().setContentsMargins(1, 1, 1, 1);
+        chart.legend().hide()
+        chart.addSeries(series)
+        chartview = QChartView(chart)
+        return chartview,chart
 
     def __init__(self):
         super().__init__()
@@ -132,43 +159,54 @@ class Window(QMainWindow):
         self.lowpassBoxes = []
 
         for channel in self.attysData.channels:
-            
+
             layh = QHBoxLayout()
             name = QLabel(channel['name'])
             name.setStyleSheet("padding-left: 1em; min-width: 4em; max-width: 4em")
             layh.addWidget(name)
 
-            ch = self.attysData.data[:,channel['idx']]
-            view = self.createGraph(self.attysData.t,ch,channel)
-            layh.addWidget(view, stretch=1)
-
             arrow = '\u2794'
-            cb = QCheckBox("Use")
-            cb.setChecked(True)
-            cb.setStyleSheet("padding-left: 1em;")
-            self.doUseCheckboxes.append(cb)
-            layh.addWidget(cb)
-            layh.addWidget(QLabel(arrow))
+            ccb = QChannelCheckBox()
+            ccb.setChecked(True)
+            ccb.setStyleSheet("padding-left: 1em;")
+            layh.addWidget(ccb)
+            self.doUseCheckboxes.append(ccb)
+
+            ch = self.attysData.data[:,channel['idx']]
+            view,chart = self.createGraph(self.attysData.t,ch,channel)
+            ccb.addWidget(chart)
+            layh.addWidget(view, stretch=1)
+            ql = QLabel(arrow)
+            ccb.addWidget(ql)
+            layh.addWidget(ql)
 
             bs = BandstopBox()
             self.bandStopBoxes.append(bs)
+            ccb.addWidget(bs)
             layh.addWidget(bs)
-            layh.addWidget(QLabel(arrow))
+            ql = QLabel(arrow)
+            ccb.addWidget(ql)
+            layh.addWidget(ql)
             
             hp = HighpassBox()
             self.highpassBoxes.append(hp)
+            ccb.addWidget(hp)
             layh.addWidget(hp)
-            layh.addWidget(QLabel(arrow))
+            ql = QLabel(arrow)
+            ccb.addWidget(ql)
+            layh.addWidget(ql)
             
             lp = LowpassBox()
+            ccb.addWidget(lp)
             self.lowpassBoxes.append(lp)
             layh.addWidget(lp)
-            layh.addWidget(QLabel(arrow))
+            ql = QLabel(arrow)
+            ccb.addWidget(ql)
+            layh.addWidget(ql)
 
             channelsLayout.addLayout(layh)
 
         actionsLayout = QVBoxLayout()
-#        actionsLayout.setAlignment(Qt.AlignTop)
         logoLabel = QLabel()
         logoLabel.setAlignment(Qt.AlignRight | Qt.AlignTop);
         logoLabel.setPixmap(QPixmap('attyslogo.png'))
@@ -183,17 +221,6 @@ class Window(QMainWindow):
         flowLayout.addLayout(actionsLayout)
         
 
-    def createGraph(self,t,data,channel):
-        series = QLineSeries()
-        for i,j in zip(t,data):
-            series.append(i,j)
-
-        chart = QChart()
-        chart.layout().setContentsMargins(1, 1, 1, 1);
-        chart.legend().hide()
-        chart.addSeries(series)
-        chartview = QChartView(chart)
-        return chartview
 
 
     def doPlot(self):
