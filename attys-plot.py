@@ -8,6 +8,8 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import scipy.signal as signal
 
+EnabledColour = QColor(0,0,255)
+DisabledColour = QColor(192,192,255)
 
 class AttysData:
     
@@ -102,25 +104,35 @@ class LowpassBox(QComboBox):
         b,a = signal.butter(4, f/fs*2, 'low')
         return signal.lfilter(b,a,data)
 
+    
 class QChannelCheckBox(QCheckBox):
     
     def __init__(self):
         super().__init__()
         self.stateChanged.connect(self.changed)
         self.widgetlist = []
+        self.series = False
 
     def addWidget(self,w):
         self.widgetlist.append(w)
 
+    def addSeries(self,s):
+        self.series = s
+
     def changed(self,s):
         for w in self.widgetlist:
             w.setEnabled(self.isChecked())
+            if self.isChecked():
+                self.series.setColor(EnabledColour)
+            else:
+                self.series.setColor(DisabledColour)                
 
 
 class Window(QMainWindow):
 
     def createGraph(self,t,data,channel):
         series = QLineSeries()
+        series.setColor(EnabledColour)
         for i,j in zip(t,data):
             series.append(i,j)
 
@@ -129,7 +141,7 @@ class Window(QMainWindow):
         chart.legend().hide()
         chart.addSeries(series)
         chartview = QChartView(chart)
-        return chartview,chart
+        return chartview,chart,series
 
     def __init__(self):
         super().__init__()
@@ -173,8 +185,9 @@ class Window(QMainWindow):
             self.doUseCheckboxes.append(ccb)
 
             ch = self.attysData.data[:,channel['idx']]
-            view,chart = self.createGraph(self.attysData.t,ch,channel)
+            view,chart,series = self.createGraph(self.attysData.t,ch,channel)
             ccb.addWidget(chart)
+            ccb.addSeries(series)
             layh.addWidget(view, stretch=1)
             ql = QLabel(arrow)
             ccb.addWidget(ql)
